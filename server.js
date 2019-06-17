@@ -1,31 +1,30 @@
+var express = require("express");
+var bodyParser = require("body-parser");
 
-//DEPENDANCIES
-var express = require('express');
-var bodyParser = require('body-parser');
-var methodOverride = require('method-override');
+var PORT = process.env.PORT || 3000;
 
 var app = express();
 
-//SERVER STATIC CONTENT FOR TH APP FROM THE "PUBLIC DIRECTORY" IN THE APPLICATION DIRECTORY.
+// Serve static content for the app from the "public" directory in the application directory.
+app.use(express.static("public"));
 
-app.use(express.static(process.cwd() + '/public'));
-//EXPRESS TO SERVER STATIC FILES 
-//app.use('/assets', express.static(__dirname + '/public/assets/css'));
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(bodyParser.urlencoded({
-	extended: false
-}));
+// parse application/json
+app.use(bodyParser.json());
 
-//OVERRIDE WITH POST HAVING ? _METHOD=DELETE
-app.use(methodOverride('_method'));
-var exphbs = require('express-handlebars');
-app.engine('handlebars', exphbs({
-    defaultLayout: 'main'
-}));
-app.set('view engine', 'handlebars');
+// Set Handlebars.
+var exphbs = require("express-handlebars");
 
-var routes = require('./controllers/burgers_controller.js');
-app.use('/', routes);
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
 
-var port = process.env.PORT || 3000;
-app.listen(port);
+// Import routes and give the server access to them.
+var routes = require("./controllers/burgers_controller.js");
+
+app.use(routes);
+
+app.listen(PORT, function() {
+  console.log("App now listening at localhost:" + PORT);
+});
