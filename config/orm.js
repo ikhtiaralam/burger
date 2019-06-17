@@ -1,23 +1,24 @@
-var connection = require('../config/connection.js');
+// Import MySQL connection.
+var connection = require("../config/connection.js");
 
-//OBJECT RELATIONAL MAPPER (O.R.M)
+// Helper function for SQL syntax.
 function printQuestionMarks(num) {
     var arr = [];
 
     for (var i = 0; i < num; i++) {
-        arr.push('?');
+        arr.push("?");
     }
 
     return arr.toString();
 }
 
+// Helper function for SQL syntax.
 function objToSql(ob) {
-    //COLUMN=VALUE, COLUMN2=VALUE2,....
     var arr = [];
 
     for (var key in ob) {
-        if (ob.hasOwnProperty(key)) {
-            arr.push(key + '=' +  ob[key]);
+        if (Object.hasOwnProperty.call(ob, key)) {
+            arr.push(key + "=" + ob[key]);
         }
     }
 
@@ -25,65 +26,51 @@ function objToSql(ob) {
 }
 
 var orm = {
-    all: function(tableInput, cb) {
-        var queryString = 'SELECT * FROM ' + tableInput + ';';
+    all: function(tableInput, callback) {
+        var queryString = "SELECT * FROM " + tableInput + ";";
         connection.query(queryString, function(err, result) {
-                if (err) throw err;
-                cb(result);
+            if (err) {
+                throw err;
+            }
+            callback(result);
         });
     },
-    //VALS IS AN ARRAY OF VALUES THAT WE WANT TO SAVE TO COLS
-    //COLS ARE THE COUMNS WE WANT TO INSERT THE VALUES INTO
+    create: function(table, cols, vals, callback) {
+        var queryString = "INSERT INTO " + table;
 
-    create: function(table, cols, vals, cb) {
-        console.log(vals);
-        var queryString = 'INSERT INTO ' + table;
+        queryString += " (";
+        queryString += cols.toString();
+        queryString += ") ";
+        queryString += "VALUES (";
+        queryString += printQuestionMarks(vals.length);
+        queryString += ") ";
 
-        queryString = queryString + ' (';
-        queryString = queryString + cols.toString();
-        queryString = queryString + ') ';
-        queryString = queryString + 'VALUES (';
-        queryString = queryString + printQuestionMarks(vals.length);
-        queryString = queryString + ') ';
-
-        console.log('\nQuery:', queryString);
+        console.log(queryString);
 
         connection.query(queryString, vals, function(err, result) {
-            if (err) throw err;
-            cb(result);
+            if (err) {
+                throw err;
+            }
+            callback(result);
         });
     },
-    //objColVals WOULD BE THE COLUMNS AND VALUES THAT YOU WANT TO UPDATE 
-    //AN EXAMPLE OF objColVals WOULD BE {NAME: RAMIRO, TIRED: TRUE}
+    update: function(table, objColVals, condition, callback) {
+        var queryString = "UPDATE " + table;
 
-    devour: function(table, objColVals, condition, cb) {
-        var queryString = 'UPDATE ' + table;
+        queryString += " SET ";
+        queryString += objToSql(objColVals);
+        queryString += " WHERE ";
+        queryString += condition;
 
-        queryString = queryString + ' SET ';
-        queryString = queryString + objToSql(objColVals);
-        queryString = queryString + ' WHERE ';
-        queryString = queryString + condition;
-
-        console.log('\nQuery:', queryString);
+        console.log(queryString);
         connection.query(queryString, function(err, result) {
-            if (err) throw err;
-            cb(result);
+            if (err) {
+                throw err;
+            }
+            callback(result);
         });
-
-    },
-
-    clear: function(table, condition, cb) {
-        var queryString = 'DELETE FROM ' + table;
-
-        queryString = queryString + ' WHERE ';
-        queryString = queryString + condition;
-
-        console.log('\nQuery:', queryString);
-        connection.query(queryString, function(err, result) {
-            if (err) throw err;
-            cb(result);
-        });
-    }   
+    }
 };
 
+// Export the orm object for the model burger.js
 module.exports = orm;

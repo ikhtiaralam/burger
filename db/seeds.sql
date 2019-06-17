@@ -1,7 +1,3 @@
-INSERT INTO Burgers (id, name, devoured)
-VALUES
-	(1, 'Regular Chumburger', 1),
-	(2, 'Cheese Chum Burger', 1),
-	(3, 'Ultra Chum Burger', 0),
-	(4, 'Veggie Chum Burger', 0),
-	(5, 'Chicken Chum Burger', 0);
+INSERT INTO burgers (burger_name) VALUES ('Chum Burger with plankton sauce');
+INSERT INTO burgers (burger_name) VALUES ('Krabby Patty');
+INSERT INTO burgers (burger_name) VALUES ('Krabby Patty with Bacon');

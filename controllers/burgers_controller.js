@@ -1,57 +1,40 @@
-//FUNCTIONS FOR ROUTING WHICH INCLUDES THE LOGIC FOR EACH ROUTE
+var express = require("express");
 
-var express = require('express');
 var router = express.Router();
-var burgers = require('../models/burger.js');
 
-//ROUTE FOR THE ROOT FILE / 
-router.get('/', function(req, res) {
-	res.redirect('/burgers');
+// Import the model burger.js to use its database functions.
+var burger = require("../models/burger.js");
+
+// Create all our routes and set up logic within those routes where required.
+router.get("/", function(request, result) {
+    burger.all(function(data) {
+        var hbsObject = {
+            burgers: data
+        };
+        console.log(hbsObject);
+        result.render("index", hbsObject);
+    });
 });
 
-//ROUTE FOR THE /BURGERS WHICH CREATES AN OBJECT WITH THE BURGERS DATA AND RENDERS IN USING HANDLEBARS IN INDEX.HANDLEBARS FILE
-router.get('/burgers', function(req, res) {
-	burgers.all(function(data) {
-		var hbsObject = {
-			burgers: data
-		};
-		//console.log(hbsObject);
-		res.render('index', hbsObject);
-	});
+router.post("/", function(request, result) {
+    burger.create([
+        "burger_name"
+    ], [
+        request.body.name
+    ], function() {
+        result.redirect("/");
+    });
 });
 
-//POST ROUTE WHICH POST A BURGER NAME AND IT WAS DEVOURED OR NOT
-router.post('/burgers/create', function(req, res) {
-	console.log(req.body.name);
-	console.log(req.body.devoured);
-	burgers.create(['name', 'devoured'], [req.body.name, req.body.devoured], function() {
-		res.redirect('/burgers');
-	});
+router.put("/:id", function(request, result) {
+    var condition = "id = " + request.params.id;
+    console.log("condition", condition);
+    burger.update({
+        devoured: request.body.devoured
+    }, condition, function() {
+        result.redirect("/");
+    });
 });
 
-//PUT ROUTE 
-router.put('/burgers/devour/:id', function(req, res) {
-	var condition = 'id = ' + req.params.id;
-
-	console.log('burgers', condition);
-
-	burgers.devour({
-		devoured: req.body.devoured
-	}, condition, function() {
-		res.redirect('/burgers');
-	});
-});
-
-
-//ROUTE FOR DELETE 
-router.delete('/burgers/clear/:id', function (req, res) {
-	var condition = 'id = ' + req.params.id;
-
-	console.log('burgers', condition);
-
-	burgers.clear(condition, function() {
-		res.redirect('/burgers');
-	});
-});
-
+// Export routes for server.js to use.
 module.exports = router;
